@@ -12,19 +12,18 @@ import { Clipboard } from '@angular/cdk/clipboard';
     <div class="payment-container">
       <div class="display">{{ displayValue() }} {{ currencySymbol() }}</div>
 
-      <div class="numpad">
-        @for(num of numbers; track num) {
-        <button (click)="addNumber(num)">{{ num }}</button>
-        }
-        <button (click)="addNumber('00')">00</button>
-        <button (click)="clear()">C</button>
-        <button class="pay-button" [disabled]="!canPay()" (click)="pay()">
-          Pay
-        </button>
-      </div>
-
-      @if (showQrCode()) {
-      <div class="qr-overlay">
+      @if (!showQrCode()) {
+        <div class="numpad">
+          @for(num of numbers; track num) {
+            <button (click)="addNumber(num)">{{ num }}</button>
+          }
+          <button (click)="addNumber('00')">00</button>
+          <button (click)="clear()">C</button>
+          <button class="pay-button" [disabled]="!canPay()" (click)="pay()">
+            Pay
+          </button>
+        </div>
+      } @else {
         <div class="qr-container">
           <qrcode
             [qrdata]="qrCodeValue()"
@@ -34,10 +33,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
           <div class="qr-text">{{ qrCodeValue() }}</div>
           <div class="qr-actions">
             <button (click)="copyToClipboard()">Copy Payment Request</button>
-            <button (click)="closeQrCode()">Close</button>
+            <button (click)="closeQrCode()">New Payment</button>
           </div>
         </div>
-      </div>
       }
     </div>
   `,
@@ -94,46 +92,41 @@ import { Clipboard } from '@angular/cdk/clipboard';
       cursor: not-allowed;
     }
 
-    .qr-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    .qr-container {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-        .qr-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            text-align: center;
-        }
+    .qr-text {
+      font-size: 0.75rem;
+      color: #666;
+      margin: 1rem 0;
+      word-break: break-all;
+      padding: 0 1rem;
+    }
 
-        .qr-text {
-            font-size: 0.75rem;
-            color: #666;
-            margin: 1rem 0;
-            word-break: break-all;
-            padding: 0 1rem;
-        }
+    .qr-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
 
-        .qr-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-        }
+    .qr-actions button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      min-width: 120px;
+      border-radius: 8px;
+      background-color: white;
+    }
 
-        .qr-actions button {
-            padding: 0.75rem 1.5rem;
-            font-size: 1.1rem;
-            min-width: 120px;
-            border-radius: 8px;
-        }
+    .qr-actions button:last-child {
+      background-color: #007bff;
+      color: white;
+    }
   `,
 })
 export class HomeComponent {
