@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `<div class="fullscreen-container">
-  <img src="/icons/icon-1024x1024.png" alt="Payment Logo" class="logo" />
+  <img src="/icons/icon-512x512.png" alt="Payment Logo" class="logo" />
   <h1>In development...</h1>
   <button *ngIf="showInstallButton" (click)="installPwa()" class="install-button">
     Install App
