@@ -1,21 +1,39 @@
 import { Component, OnInit } from '@angular/core';
 import { SettingsService, Currency } from '../services/settings.service';
+import { QrCodeService } from '../services/qrcode.service';
+import { QRCodeComponent } from 'angularx-qrcode';
 
 @Component({
   selector: 'app-home',
   standalone: true,
+  imports: [QRCodeComponent],
   template: `
     <div class="payment-container">
       <div class="display">{{ displayValue }} {{ currencySymbol }}</div>
-      
+
       <div class="numpad">
         @for(num of numbers; track num) {
-          <button (click)="addNumber(num)">{{ num }}</button>
+        <button (click)="addNumber(num)">{{ num }}</button>
         }
         <button (click)="addNumber('00')">00</button>
         <button (click)="clear()">C</button>
-        <button class="pay-button" [disabled]="!canPay" (click)="pay()">Pay</button>
+        <button class="pay-button" [disabled]="!canPay" (click)="pay()">
+          Pay
+        </button>
       </div>
+
+      @if (showQrCode) {
+      <div class="qr-overlay">
+        <div class="qr-container">
+          <qrcode
+            [qrdata]="qrCodeValue"
+            [width]="256"
+            [errorCorrectionLevel]="'M'"
+          ></qrcode>
+          <button (click)="closeQrCode()">Close</button>
+        </div>
+      </div>
+      }
     </div>
   `,
   styles: `
@@ -70,17 +88,41 @@ import { SettingsService, Currency } from '../services/settings.service';
       background-color: #cccccc;
       cursor: not-allowed;
     }
-  `
+
+    .qr-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+  `,
 })
 export class HomeComponent implements OnInit {
   numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   input = '';
   currency: Currency = 'EUR';
-  
-  constructor(private settingsService: SettingsService) {}
+  showQrCode = false;
+  qrCodeValue = '';
+
+  constructor(
+    private settingsService: SettingsService,
+    private qrCodeService: QrCodeService
+  ) {}
 
   ngOnInit() {
-    this.settingsService.getCurrency().subscribe(currency => {
+    this.settingsService.getCurrency().subscribe((currency) => {
       this.currency = currency;
     });
   }
@@ -110,9 +152,24 @@ export class HomeComponent implements OnInit {
 
   pay() {
     if (this.canPay) {
-      // TODO: Implement payment processing
-      console.log(`Processing payment of ${this.displayValue} ${this.currency}`);
-      this.clear();
+      const paymentParams = {
+        destination: 'GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO',
+        amount: this.displayValue,
+        asset_code: this.currency,
+        asset_issuer:
+          'GCRCUE2C5TBNIPYHMEP7NK5RWTT2WBSZ75CMARH7GDOHDDCQH3XANFOB',
+        memo: `Payment_${Date.now()}`,
+        memo_type: 'MEMO_TEXT' as const,
+      };
+
+      this.qrCodeValue =
+        this.qrCodeService.generateStellarPaymentUrl(paymentParams);
+      this.showQrCode = true;
     }
+  }
+
+  closeQrCode() {
+    this.showQrCode = false;
+    this.clear();
   }
 }
