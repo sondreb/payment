@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { SettingsService, StellarAsset } from '../services/settings.service';
 import { QrCodeService } from '../services/qrcode.service';
 import { QRCodeComponent } from 'angularx-qrcode';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-home',
@@ -30,7 +31,11 @@ import { QRCodeComponent } from 'angularx-qrcode';
             [width]="256"
             [errorCorrectionLevel]="'M'"
           ></qrcode>
-          <button (click)="closeQrCode()">Close</button>
+          <div class="qr-text">{{ qrCodeValue() }}</div>
+          <div class="qr-actions">
+            <button (click)="copyToClipboard()">Copy Payment Request</button>
+            <button (click)="closeQrCode()">Close</button>
+          </div>
         </div>
       </div>
       }
@@ -107,11 +112,32 @@ import { QRCodeComponent } from 'angularx-qrcode';
             border-radius: 8px;
             text-align: center;
         }
+
+        .qr-text {
+            font-size: 0.75rem;
+            color: #666;
+            margin: 1rem 0;
+            word-break: break-all;
+            padding: 0 1rem;
+        }
+
+        .qr-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .qr-actions button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+        }
   `,
 })
 export class HomeComponent {
   private settingsService = inject(SettingsService);
   private qrCodeService = inject(QrCodeService);
+  private clipboard = inject(Clipboard);
 
   numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   input = signal('');
@@ -177,5 +203,9 @@ export class HomeComponent {
   closeQrCode() {
     this.showQrCode.set(false);
     this.clear();
+  }
+
+  copyToClipboard() {
+    this.clipboard.copy(this.qrCodeValue());
   }
 }
