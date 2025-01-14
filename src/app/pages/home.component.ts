@@ -3,6 +3,7 @@ import { SettingsService, StellarAsset } from '../services/settings.service';
 import { QrCodeService } from '../services/qrcode.service';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { PaymentHistoryService } from '../services/payment-history.service';
 
 @Component({
   selector: 'app-home',
@@ -133,6 +134,7 @@ export class HomeComponent {
   private settingsService = inject(SettingsService);
   private qrCodeService = inject(QrCodeService);
   private clipboard = inject(Clipboard);
+  private historyService = inject(PaymentHistoryService);
 
   numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   input = signal('');
@@ -188,9 +190,19 @@ export class HomeComponent {
         memo_type: 'MEMO_TEXT' as const,
       };
 
-      this.qrCodeValue.set(
-        this.qrCodeService.generateStellarPaymentUrl(paymentParams)
-      );
+      const paymentUrl = this.qrCodeService.generateStellarPaymentUrl(paymentParams);
+      this.qrCodeValue.set(paymentUrl);
+      
+      // Save to history
+      this.historyService.addPayment({
+        id: Date.now().toString(),
+        amount: this.displayValue(),
+        assetCode: this.asset().code,
+        destination: this.stellarAddress(),
+        timestamp: Date.now(),
+        paymentUrl
+      });
+
       this.showQrCode.set(true);
     }
   }

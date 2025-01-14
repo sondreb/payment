@@ -5,5 +5,10 @@ import { SettingsComponent } from './pages/settings.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'settings', component: SettingsComponent },
+  {
+    path: 'history',
+    loadComponent: () =>
+      import('./pages/history.component').then((m) => m.HistoryComponent),
+  },
   { path: '**', redirectTo: '' }
 ];

@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
           [routerLinkActiveOptions]="{ exact: true }"
           >Payment</a
         >
+        <a routerLink="/history" routerLinkActive="active">History</a>
         <a routerLink="/settings" routerLinkActive="active">Settings</a>
       </div>
       <div class="flex-spacer"></div>
