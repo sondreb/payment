@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { SettingsService, Currency } from '../services/settings.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
   template: `
     <div class="payment-container">
       <div class="display">{{ displayValue }} {{ currencySymbol }}</div>
       
       <div class="numpad">
-        <button *ngFor="let num of numbers" (click)="addNumber(num)">{{ num }}</button>
+        @for(num of numbers; track num) {
+          <button (click)="addNumber(num)">{{ num }}</button>
+        }
         <button (click)="addNumber('00')">00</button>
         <button (click)="clear()">C</button>
         <button class="pay-button" [disabled]="!canPay" (click)="pay()">Pay</button>
