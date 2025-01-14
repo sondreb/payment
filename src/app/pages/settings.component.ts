@@ -80,7 +80,7 @@ export class SettingsComponent implements OnInit {
   stellarAddress = '';
   selectedAsset: StellarAsset = {
     code: 'EURMTL',
-    issuer: 'GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V'
+    issuer: SettingsService.EURMTL_ISSUER
   };
 
   constructor(private settingsService: SettingsService) {}
@@ -101,7 +101,7 @@ export class SettingsComponent implements OnInit {
   saveAsset() {
     // Update issuer based on selected asset
     if (this.selectedAsset.code === 'EURMTL') {
-      this.selectedAsset.issuer = 'GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V';
+      this.selectedAsset.issuer = SettingsService.EURMTL_ISSUER;
     } else {
       delete this.selectedAsset.issuer; // XLM doesn't need an issuer
     }

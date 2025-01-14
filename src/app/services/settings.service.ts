@@ -10,12 +10,14 @@ export interface StellarAsset {
   providedIn: 'root'
 })
 export class SettingsService {
+  static readonly EURMTL_ISSUER = 'GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V';
+  
   private readonly STELLAR_ADDRESS_KEY = 'payment-stellar-address';
   private readonly CURRENCY_KEY = 'payment-currency';
 
   private readonly DEFAULT_ASSET: StellarAsset = {
     code: 'EURMTL',
-    issuer: 'GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V'
+    issuer: SettingsService.EURMTL_ISSUER
   };
 
   private stellarAddressSubject = new BehaviorSubject<string>(

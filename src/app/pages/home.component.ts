@@ -142,7 +142,10 @@ export class HomeComponent {
   showQrCode = signal(false);
   qrCodeValue = signal('');
   stellarAddress = signal('');
-  asset = signal<StellarAsset>({ code: 'EURMTL', issuer: 'GCRCUE2C5TBNIPYHMEP7NK5RWTT2WBSZ75CMARH7GDOHDDCQH3XANFOB' });
+  asset = signal<StellarAsset>({ 
+    code: 'EURMTL', 
+    issuer: SettingsService.EURMTL_ISSUER 
+  });
 
   displayValue = computed(() => {
     const value = this.input() === '' ? 0 : parseFloat(this.input()) / 100;
