@@ -125,12 +125,14 @@ import { Clipboard } from '@angular/cdk/clipboard';
             display: flex;
             gap: 1rem;
             justify-content: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
 
         .qr-actions button {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            min-width: 120px;
+            border-radius: 8px;
         }
   `,
 })
