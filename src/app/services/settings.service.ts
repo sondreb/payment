@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export type Currency = 'EUR' | 'USD';
+export interface StellarAsset {
+  code: 'EURMTL' | 'XLM';
+  issuer?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -10,12 +13,17 @@ export class SettingsService {
   private readonly STELLAR_ADDRESS_KEY = 'payment-stellar-address';
   private readonly CURRENCY_KEY = 'payment-currency';
 
+  private readonly DEFAULT_ASSET: StellarAsset = {
+    code: 'EURMTL',
+    issuer: 'GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V'
+  };
+
   private stellarAddressSubject = new BehaviorSubject<string>(
     localStorage.getItem(this.STELLAR_ADDRESS_KEY) || ''
   );
 
-  private currencySubject = new BehaviorSubject<Currency>(
-    (localStorage.getItem(this.CURRENCY_KEY) as Currency) || 'EUR'
+  private assetSubject = new BehaviorSubject<StellarAsset>(
+    JSON.parse(localStorage.getItem(this.CURRENCY_KEY) || JSON.stringify(this.DEFAULT_ASSET))
   );
 
   getStellarAddress() {
@@ -27,12 +35,12 @@ export class SettingsService {
     this.stellarAddressSubject.next(address);
   }
 
-  getCurrency() {
-    return this.currencySubject.asObservable();
+  getAsset() {
+    return this.assetSubject.asObservable();
   }
 
-  setCurrency(currency: Currency) {
-    localStorage.setItem(this.CURRENCY_KEY, currency);
-    this.currencySubject.next(currency);
+  setAsset(asset: StellarAsset) {
+    localStorage.setItem(this.CURRENCY_KEY, JSON.stringify(asset));
+    this.assetSubject.next(asset);
   }
 }

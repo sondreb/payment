@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SettingsService, Currency } from '../services/settings.service';
+import { SettingsService, StellarAsset } from '../services/settings.service';
 
 @Component({
   selector: 'app-settings',
@@ -24,12 +24,12 @@ import { SettingsService, Currency } from '../services/settings.service';
       </div>
 
       <div class="form-group">
-        <label for="currency">Currency</label>
-        <select id="currency" [(ngModel)]="currency" (change)="saveCurrency()">
-          <option value="EUR">Euro (€)</option>
-          <option value="USD">US Dollar ($)</option>
+        <label for="asset">Asset</label>
+        <select id="asset" [(ngModel)]="selectedAsset.code" (change)="saveAsset()">
+          <option value="EURMTL">EURMTL (mtl.montelibero.org)</option>
+          <option value="XLM">XLM (Lumen)</option>
         </select>
-        <p class="help-text">Select the currency for payments</p>
+        <p class="help-text">Select the asset for payments</p>
       </div>
     </div>
   `,
@@ -78,7 +78,10 @@ import { SettingsService, Currency } from '../services/settings.service';
 })
 export class SettingsComponent implements OnInit {
   stellarAddress = '';
-  currency: Currency = 'EUR';
+  selectedAsset: StellarAsset = {
+    code: 'EURMTL',
+    issuer: 'GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V'
+  };
 
   constructor(private settingsService: SettingsService) {}
 
@@ -86,8 +89,8 @@ export class SettingsComponent implements OnInit {
     this.settingsService.getStellarAddress().subscribe(address => {
       this.stellarAddress = address;
     });
-    this.settingsService.getCurrency().subscribe(currency => {
-      this.currency = currency;
+    this.settingsService.getAsset().subscribe(asset => {
+      this.selectedAsset = asset;
     });
   }
 
@@ -95,7 +98,14 @@ export class SettingsComponent implements OnInit {
     this.settingsService.setStellarAddress(this.stellarAddress);
   }
 
-  saveCurrency() {
-    this.settingsService.setCurrency(this.currency);
+  saveAsset() {
+    // Update issuer based on selected asset
+    if (this.selectedAsset.code === 'EURMTL') {
+      this.selectedAsset.issuer = 'GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V';
+    } else {
+      delete this.selectedAsset.issuer; // XLM doesn't need an issuer
+    }
+    
+    this.settingsService.setAsset(this.selectedAsset);
   }
 }

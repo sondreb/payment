@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { SettingsService, Currency } from '../services/settings.service';
+import { SettingsService, StellarAsset } from '../services/settings.service';
 import { QrCodeService } from '../services/qrcode.service';
 import { QRCodeComponent } from 'angularx-qrcode';
 
@@ -115,17 +115,19 @@ export class HomeComponent {
 
   numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   input = signal('');
-  currency = signal<Currency>('EUR');
+  // currency = signal<Currency>('EUR');
   showQrCode = signal(false);
   qrCodeValue = signal('');
+  stellarAddress = signal('');
+  asset = signal<StellarAsset>({ code: 'EURMTL', issuer: 'GCRCUE2C5TBNIPYHMEP7NK5RWTT2WBSZ75CMARH7GDOHDDCQH3XANFOB' });
 
   displayValue = computed(() => {
-    const value = parseFloat(this.input()) / 100;
+    const value = this.input() === '' ? 0 : parseFloat(this.input()) / 100;
     return value.toFixed(2);
   });
 
   currencySymbol = computed(() => {
-    return this.currency() === 'EUR' ? '€' : '$';
+    return this.asset().code;
   });
 
   canPay = computed(() => {
@@ -134,8 +136,12 @@ export class HomeComponent {
 
   constructor() {
     effect(() => {
-      this.settingsService.getCurrency().subscribe(currency => {
-        this.currency.set(currency);
+      this.settingsService.getAsset().subscribe(asset => {
+        this.asset.set(asset);
+      });
+
+      this.settingsService.getStellarAddress().subscribe(address => {
+        this.stellarAddress.set(address);
       });
     });
   }
@@ -152,12 +158,11 @@ export class HomeComponent {
 
   async pay() {
     if (this.canPay()) {
-      const paymentParams = {
-        destination: 'GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO',
+      const paymentParams: any = {
+        destination: this.stellarAddress(),
         amount: this.displayValue(),
-        asset_code: this.currency(),
-        asset_issuer:
-          'GCRCUE2C5TBNIPYHMEP7NK5RWTT2WBSZ75CMARH7GDOHDDCQH3XANFOB',
+        asset_code: this.asset().code,
+        asset_issuer: this.asset().code === 'XLM' ? undefined : this.asset().issuer,
         memo: `Payment_${Date.now()}`,
         memo_type: 'MEMO_TEXT' as const,
       };
