@@ -31,11 +31,11 @@ import { PaymentHistoryService } from '../services/payment-history.service';
             [width]="256"
             [errorCorrectionLevel]="'M'"
           ></qrcode>
-          <div class="qr-text">{{ qrCodeValue() }}</div>
           <div class="qr-actions">
             <button (click)="copyToClipboard()">Copy Payment Request</button>
             <button (click)="closeQrCode()">New Payment</button>
           </div>
+          <div class="qr-text">{{ qrCodeValue() }}</div>
         </div>
       }
     </div>
