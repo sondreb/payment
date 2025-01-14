@@ -1,87 +1,118 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SettingsService, Currency } from '../services/settings.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="fullscreen-container">
-  <img src="/icons/icon-512x512.png" alt="Payment Logo" class="logo" />
-  <h1>In development...</h1>
-  <button *ngIf="showInstallButton" (click)="installPwa()" class="install-button">
-    Install App
-  </button>
-</div>
-`,
-  styles: `.fullscreen-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
-  
-  .fullscreen-container .logo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .fullscreen-container h1 {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 3rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  }
-  
-  .install-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 24px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 24px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    transition: transform 0.2s;
-  }
-  
-  .install-button:hover {
-    transform: scale(1.05);
-    background-color: #0056b3;
-  }
+  template: `
+    <div class="payment-container">
+      <div class="display">{{ displayValue }} {{ currencySymbol }}</div>
+      
+      <div class="numpad">
+        <button *ngFor="let num of numbers" (click)="addNumber(num)">{{ num }}</button>
+        <button (click)="addNumber('00')">00</button>
+        <button (click)="clear()">C</button>
+        <button class="pay-button" [disabled]="!canPay" (click)="pay()">Pay</button>
+      </div>
+    </div>
+  `,
+  styles: `
+    .payment-container {
+      padding: 2rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .display {
+      background-color: white;
+      padding: 1rem;
+      font-size: 2rem;
+      text-align: right;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    button {
+      padding: 1.5rem;
+      font-size: 1.5rem;
+      border: none;
+      border-radius: 8px;
+      background-color: white;
+      color: #2B4E61;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #f0f0f0;
+    }
+
+    button:active {
+      background-color: #e0e0e0;
+    }
+
+    button.pay-button {
+      background-color: #007bff;
+      color: white;
+      grid-column: span 3;
+    }
+
+    button.pay-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
   `
 })
 export class HomeComponent implements OnInit {
-  deferredPrompt: any;
-  showInstallButton = false;
+  numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+  input = '';
+  currency: Currency = 'EUR';
+  
+  constructor(private settingsService: SettingsService) {}
 
   ngOnInit() {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      this.deferredPrompt = e;
-      this.showInstallButton = true;
+    this.settingsService.getCurrency().subscribe(currency => {
+      this.currency = currency;
     });
   }
 
-  async installPwa() {
-    if (!this.deferredPrompt) return;
-    
-    this.deferredPrompt.prompt();
-    const { outcome } = await this.deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      this.showInstallButton = false;
+  get displayValue(): string {
+    const value = parseFloat(this.input) / 100;
+    return value.toFixed(2);
+  }
+
+  get currencySymbol(): string {
+    return this.currency === 'EUR' ? '€' : '$';
+  }
+
+  get canPay(): boolean {
+    return parseFloat(this.input) > 0;
+  }
+
+  addNumber(num: string) {
+    if (this.input.length < 10) {
+      this.input += num;
     }
-    this.deferredPrompt = null;
+  }
+
+  clear() {
+    this.input = '';
+  }
+
+  pay() {
+    if (this.canPay) {
+      // TODO: Implement payment processing
+      console.log(`Processing payment of ${this.displayValue} ${this.currency}`);
+      this.clear();
+    }
   }
 }

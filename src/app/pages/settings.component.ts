@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SettingsService } from '../services/settings.service';
+import { SettingsService, Currency } from '../services/settings.service';
 
 @Component({
   selector: 'app-settings',
@@ -21,6 +21,15 @@ import { SettingsService } from '../services/settings.service';
           (change)="saveStellarAddress()"
         />
         <p class="help-text">This address will be used to receive payments</p>
+      </div>
+
+      <div class="form-group">
+        <label for="currency">Currency</label>
+        <select id="currency" [(ngModel)]="currency" (change)="saveCurrency()">
+          <option value="EUR">Euro (€)</option>
+          <option value="USD">US Dollar ($)</option>
+        </select>
+        <p class="help-text">Select the currency for payments</p>
       </div>
     </div>
   `,
@@ -55,10 +64,21 @@ import { SettingsService } from '../services/settings.service';
       font-size: 0.875rem;
       margin: 0;
     }
+
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      background-color: white;
+    }
   `
 })
 export class SettingsComponent implements OnInit {
   stellarAddress = '';
+  currency: Currency = 'EUR';
 
   constructor(private settingsService: SettingsService) {}
 
@@ -66,9 +86,16 @@ export class SettingsComponent implements OnInit {
     this.settingsService.getStellarAddress().subscribe(address => {
       this.stellarAddress = address;
     });
+    this.settingsService.getCurrency().subscribe(currency => {
+      this.currency = currency;
+    });
   }
 
   saveStellarAddress() {
     this.settingsService.setStellarAddress(this.stellarAddress);
+  }
+
+  saveCurrency() {
+    this.settingsService.setCurrency(this.currency);
   }
 }
