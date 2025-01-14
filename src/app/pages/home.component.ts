@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { SettingsService, Currency } from '../services/settings.service';
 import { QrCodeService } from '../services/qrcode.service';
 import { QRCodeComponent } from 'angularx-qrcode';
@@ -9,7 +9,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
   imports: [QRCodeComponent],
   template: `
     <div class="payment-container">
-      <div class="display">{{ displayValue }} {{ currencySymbol }}</div>
+      <div class="display">{{ displayValue() }} {{ currencySymbol() }}</div>
 
       <div class="numpad">
         @for(num of numbers; track num) {
@@ -17,16 +17,16 @@ import { QRCodeComponent } from 'angularx-qrcode';
         }
         <button (click)="addNumber('00')">00</button>
         <button (click)="clear()">C</button>
-        <button class="pay-button" [disabled]="!canPay" (click)="pay()">
+        <button class="pay-button" [disabled]="!canPay()" (click)="pay()">
           Pay
         </button>
       </div>
 
-      @if (showQrCode) {
+      @if (showQrCode()) {
       <div class="qr-overlay">
         <div class="qr-container">
           <qrcode
-            [qrdata]="qrCodeValue"
+            [qrdata]="qrCodeValue()"
             [width]="256"
             [errorCorrectionLevel]="'M'"
           ></qrcode>
@@ -109,67 +109,68 @@ import { QRCodeComponent } from 'angularx-qrcode';
         }
   `,
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
+  private settingsService = inject(SettingsService);
+  private qrCodeService = inject(QrCodeService);
+
   numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-  input = '';
-  currency: Currency = 'EUR';
-  showQrCode = false;
-  qrCodeValue = '';
+  input = signal('');
+  currency = signal<Currency>('EUR');
+  showQrCode = signal(false);
+  qrCodeValue = signal('');
 
-  constructor(
-    private settingsService: SettingsService,
-    private qrCodeService: QrCodeService
-  ) {}
+  displayValue = computed(() => {
+    const value = parseFloat(this.input()) / 100;
+    return value.toFixed(2);
+  });
 
-  ngOnInit() {
-    this.settingsService.getCurrency().subscribe((currency) => {
-      this.currency = currency;
+  currencySymbol = computed(() => {
+    return this.currency() === 'EUR' ? '€' : '$';
+  });
+
+  canPay = computed(() => {
+    return parseFloat(this.input()) > 0;
+  });
+
+  constructor() {
+    effect(() => {
+      this.settingsService.getCurrency().subscribe(currency => {
+        this.currency.set(currency);
+      });
     });
   }
 
-  get displayValue(): string {
-    const value = parseFloat(this.input) / 100;
-    return value.toFixed(2);
-  }
-
-  get currencySymbol(): string {
-    return this.currency === 'EUR' ? '€' : '$';
-  }
-
-  get canPay(): boolean {
-    return parseFloat(this.input) > 0;
-  }
-
   addNumber(num: string) {
-    if (this.input.length < 10) {
-      this.input += num;
+    if (this.input().length < 10) {
+      this.input.set(this.input() + num);
     }
   }
 
   clear() {
-    this.input = '';
+    this.input.set('');
   }
 
-  pay() {
-    if (this.canPay) {
+  async pay() {
+    if (this.canPay()) {
       const paymentParams = {
         destination: 'GCALNQQBXAPZ2WIRSDDBMSTAKCUH5SG6U76YBFLQLIXJTF7FE5AX7AOO',
-        amount: this.displayValue,
-        asset_code: this.currency,
+        amount: this.displayValue(),
+        asset_code: this.currency(),
         asset_issuer:
           'GCRCUE2C5TBNIPYHMEP7NK5RWTT2WBSZ75CMARH7GDOHDDCQH3XANFOB',
         memo: `Payment_${Date.now()}`,
         memo_type: 'MEMO_TEXT' as const,
       };
 
-      this.qrCodeValue =
-        this.qrCodeService.generateStellarPaymentUrl(paymentParams);
-      this.showQrCode = true;
+      this.qrCodeValue.set(
+        this.qrCodeService.generateStellarPaymentUrl(paymentParams)
+      );
+      this.showQrCode.set(true);
     }
   }
 
   closeQrCode() {
-    this.showQrCode = false;
+    this.showQrCode.set(false);
     this.clear();
   }
 }
