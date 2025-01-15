@@ -46,6 +46,12 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
           <div class="qr-text">{{ qrCodeValue() }}</div>
         </div>
       }
+
+      @if (true) {
+        <button class="debug-btn" (click)="simulatePaymentSuccess()">
+          Debug: Simulate Payment Success
+        </button>
+      }
     </div>
   `,
   styles: `
@@ -152,6 +158,20 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
     .payment-status.paid {
       background: #d4edda;
       color: #155724;
+    }
+
+    .debug-btn {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .debug-btn:hover {
+      background-color: #f57c00;
     }
   `
 })
@@ -266,5 +286,22 @@ export class HomeComponent {
 
   copyToClipboard() {
     this.clipboard.copy(this.qrCodeValue());
+  }
+
+  simulatePaymentSuccess() {
+    const mockValidation = {
+      memo: 'debug-payment',
+      expectedAmount: '100',
+      assetCode: 'XLM',
+      destination: 'debug-destination',
+      isPaid: true,
+      checkCount: 1,
+      transactionId: 'debug-tx-' + Date.now()
+    };
+
+    this.validatorService.stopValidation();
+    this.historyService.updatePaymentStatus(mockValidation.memo, true, mockValidation.transactionId);
+    this.showQrCode.set(false);
+    this.paymentStatus.set('paid');
   }
 }
