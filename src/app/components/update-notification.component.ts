@@ -30,18 +30,19 @@ import { UpdateService } from '../services/update.service';
     }
 
     button {
-      background: white;
-      color: var(--primary);
+      background: #2B4E61;
+      color: white;
       border: none;
       padding: 8px 16px;  /* Slightly increased padding */
       border-radius: 4px;
       cursor: pointer;
       font-weight: 500;
-      transition: background-color 0.2s;  /* Added transition */
+      transition: all 0.2s;  /* Added transition */
     }
 
     button:hover {
-      background: var(--background);
+      background: #3a6780;
+      transform: translateY(-1px);
     }
   `]
 })
