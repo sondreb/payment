@@ -54,6 +54,15 @@ export class PaymentValidatorService {
     return Number(amount).toString();
   }
 
+  private async fetchTransactionDetails(transactionUrl: string) {
+    console.log('Fetching transaction details from:', transactionUrl);
+    const response = await fetch(transactionUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  }
+
   private async checkPayment(validation: PaymentValidation) {
     console.log(`Checking payment (attempt ${validation.checkCount + 1}/${this.MAX_CHECKS}):`, validation);
 
@@ -84,31 +93,47 @@ export class PaymentValidatorService {
       });
 
       // Look for matching payment in recent transactions
-      const matchingPayment = data._embedded.records.find((tx: any) => {
-        console.log('Checking transaction:', {
-          memo: tx.transaction_memo,
-          amount: tx.amount,
-          normalized_amount: this.normalizeAmount(tx.amount),
-          expected_amount: validation.expectedAmount,
-          normalized_expected: this.normalizeAmount(validation.expectedAmount),
-          asset_type: tx.asset_type,
-          asset_code: tx.asset_code
-        });
-        
-        const memoMatches = tx.transaction_memo === validation.memo;
-        const amountMatches = this.normalizeAmount(tx.amount) === this.normalizeAmount(validation.expectedAmount);
-        const assetMatches = validation.assetCode === 'XLM' ? 
-          tx.asset_type === 'native' : 
-          tx.asset_code === validation.assetCode;
-        
-        console.log('Match results:', {
-          memoMatches,
-          amountMatches,
-          assetMatches
-        });
+      const matchingPayment = await (async () => {
+        for (const tx of data._embedded.records) {
+          console.log('Checking payment record:', {
+            id: tx.id,
+            amount: tx.amount,
+            successful: tx.transaction_successful
+          });
 
-        return memoMatches && amountMatches && assetMatches;
-      });
+          // Skip if transaction was not successful
+          if (!tx.transaction_successful) {
+            console.log('Skipping unsuccessful transaction');
+            continue;
+          }
+
+          // Check amount and asset first
+          const amountMatches = this.normalizeAmount(tx.amount) === this.normalizeAmount(validation.expectedAmount);
+          const assetMatches = validation.assetCode === 'XLM' ? 
+            tx.asset_type === 'native' : 
+            tx.asset_code === validation.assetCode;
+
+          if (!amountMatches || !assetMatches) {
+            console.log('Amount or asset does not match');
+            continue;
+          }
+
+          try {
+            // Fetch transaction details to check memo
+            const transactionDetails = await this.fetchTransactionDetails(tx._links.transaction.href);
+            console.log('Transaction details:', transactionDetails);
+
+            if (transactionDetails.successful && 
+                transactionDetails.memo === validation.memo) {
+              console.log('Found matching transaction with correct memo');
+              return tx;
+            }
+          } catch (error) {
+            console.error('Error fetching transaction details:', error);
+          }
+        }
+        return null;
+      })();
 
       if (matchingPayment) {
         console.log('Found matching payment:', matchingPayment);
