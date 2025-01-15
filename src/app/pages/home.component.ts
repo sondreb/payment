@@ -63,16 +63,16 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
   `,
   styles: `
     .payment-container {
-      padding: 2rem;
+      padding: 2rem 0 0 0;
       max-width: 400px;
-      margin: 2rem auto;
+      margin: 0 auto;
     }
 
     .display {
       background-color: white;
       padding: 1.25rem 1.5rem;
       height: 5rem;          /* Added fixed height */
-      font-size: min(3.5rem, calc(600px / var(--length, 12)));
+      font-size: min(2.5rem, calc(400px / var(--length, 12))); /* Reduced from 3.5rem to 2.5rem and 600px to 400px */
       text-align: right;
       border-radius: 16px;
       margin-bottom: 1.5rem;
