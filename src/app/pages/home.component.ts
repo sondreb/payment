@@ -70,9 +70,9 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
 
     .display {
       background-color: white;
-      padding: 1.5rem;
-      height: 4rem;          /* Added fixed height */
-      font-size: min(2.5rem, calc(400px / var(--length, 8)));
+      padding: 1.25rem 1.5rem;
+      height: 5rem;          /* Added fixed height */
+      font-size: min(3.5rem, calc(600px / var(--length, 12)));
       text-align: right;
       border-radius: 16px;
       margin-bottom: 1.5rem;
@@ -253,7 +253,8 @@ export class HomeComponent {
   displayValue = computed(() => {
     const value = this.input() === '' ? 0 : parseFloat(this.input()) / 100;
     const displayText = `${value.toFixed(2)} ${this.asset().code}`;
-    document.documentElement.style.setProperty('--length', displayText.length.toString());
+    // Only start scaling when text is longer than 12 characters
+    document.documentElement.style.setProperty('--length', Math.max(12, displayText.length).toString());
     return value.toFixed(2);
   });
 
