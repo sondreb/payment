@@ -4,6 +4,7 @@ import { QrCodeService } from '../services/qrcode.service';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { PaymentHistoryService } from '../services/payment-history.service';
+import { PaymentValidatorService } from '../services/payment-validator.service';
 
 @Component({
   selector: 'app-home',
@@ -31,6 +32,13 @@ import { PaymentHistoryService } from '../services/payment-history.service';
             [width]="256"
             [errorCorrectionLevel]="'M'"
           ></qrcode>
+          <div class="payment-status" [class]="paymentStatus()">
+            @if (paymentStatus() === 'pending') {
+              Waiting for payment...
+            } @else if (paymentStatus() === 'paid') {
+              Payment confirmed! ✓
+            }
+          </div>
           <div class="qr-actions">
             <button (click)="copyToClipboard()">Copy Payment Request</button>
             <button (click)="closeQrCode()">New Payment</button>
@@ -128,17 +136,34 @@ import { PaymentHistoryService } from '../services/payment-history.service';
       background-color: #007bff;
       color: white;
     }
-  `,
+
+    .payment-status {
+      margin: 1rem 0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .payment-status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .payment-status.paid {
+      background: #d4edda;
+      color: #155724;
+    }
+  `
 })
 export class HomeComponent {
   private settingsService = inject(SettingsService);
   private qrCodeService = inject(QrCodeService);
   private clipboard = inject(Clipboard);
   private historyService = inject(PaymentHistoryService);
+  private validatorService = inject(PaymentValidatorService);
 
   numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   input = signal('');
-  // currency = signal<Currency>('EUR');
   showQrCode = signal(false);
   qrCodeValue = signal('');
   stellarAddress = signal('');
@@ -146,6 +171,7 @@ export class HomeComponent {
     code: 'EURMTL', 
     issuer: SettingsService.EURMTL_ISSUER 
   });
+  paymentStatus = signal<'pending' | 'paid' | null>(null);
 
   displayValue = computed(() => {
     const value = this.input() === '' ? 0 : parseFloat(this.input()) / 100;
@@ -169,6 +195,17 @@ export class HomeComponent {
       this.settingsService.getStellarAddress().subscribe(address => {
         this.stellarAddress.set(address);
       });
+
+      this.validatorService.validationStatus$.subscribe(status => {
+        if (status?.isPaid) {
+          this.paymentStatus.set('paid');
+          this.historyService.updatePaymentStatus(status.memo, true);
+        } else if (status) {
+          this.paymentStatus.set('pending');
+        } else {
+          this.paymentStatus.set(null);
+        }
+      });
     });
   }
 
@@ -184,12 +221,13 @@ export class HomeComponent {
 
   async pay() {
     if (this.canPay()) {
+      const memo = `Payment_${Date.now()}`;
       const paymentParams: any = {
         destination: this.stellarAddress(),
         amount: this.displayValue(),
         asset_code: this.asset().code,
         asset_issuer: this.asset().code === 'XLM' ? undefined : this.asset().issuer,
-        memo: `Payment_${Date.now()}`,
+        memo,
         memo_type: 'MEMO_TEXT' as const,
       };
 
@@ -203,7 +241,17 @@ export class HomeComponent {
         assetCode: this.asset().code,
         destination: this.stellarAddress(),
         timestamp: Date.now(),
-        paymentUrl
+        paymentUrl,
+        memo,
+        isPaid: false
+      });
+
+      // Start payment validation
+      this.validatorService.startValidation({
+        memo,
+        expectedAmount: this.displayValue(),
+        assetCode: this.asset().code,
+        destination: this.stellarAddress()
       });
 
       this.showQrCode.set(true);
@@ -213,6 +261,7 @@ export class HomeComponent {
   closeQrCode() {
     this.showQrCode.set(false);
     this.clear();
+    this.validatorService.stopValidation();
   }
 
   copyToClipboard() {
