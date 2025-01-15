@@ -63,7 +63,7 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
   `,
   styles: `
     .payment-container {
-      padding: 2rem 0 0 0;
+      padding: 2rem 0 2rem 0;
       max-width: 400px;
       margin: 0 auto;
     }

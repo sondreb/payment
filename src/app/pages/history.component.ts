@@ -60,13 +60,6 @@ import { Clipboard } from '@angular/cdk/clipboard';
       margin: 0 auto;
     }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 2rem;
-    }
-
     .payment-card {
       background: white;
       border-radius: 16px;
