@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, HostListener } from '@angular/core';
 import { SettingsService, StellarAsset } from '../services/settings.service';
 import { QrCodeService } from '../services/qrcode.service';
 import { QRCodeComponent } from 'angularx-qrcode';
@@ -287,6 +287,29 @@ export class HomeComponent {
         }
       });
     });
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // Only handle keyboard events when QR code is not shown
+    if (this.showQrCode()) {
+      return;
+    }
+
+    // Prevent default behavior for numeric keys to avoid double input
+    if (/^\d$/.test(event.key) || event.key === 'Enter') {
+      event.preventDefault();
+    }
+
+    if (/^\d$/.test(event.key)) {
+      this.addNumber(event.key);
+    } else if (event.key === 'Enter') {
+      if (this.canPay()) {
+        this.pay();
+      }
+    } else if (event.key === 'Escape' || event.key === 'Delete' || event.key === 'Backspace') {
+      this.clear();
+    }
   }
 
   addNumber(num: string) {
