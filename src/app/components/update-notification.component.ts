@@ -18,8 +18,8 @@ import { UpdateService } from '../services/update.service';
       bottom: 0;          /* Changed from top: 0 to bottom: 0 */
       left: 0;
       right: 0;
-      background: var(--primary);
-      color: white;
+      
+      color: var(--primary-color);
       padding: 16px;      /* Slightly increased padding */
       display: flex;
       justify-content: center;
@@ -27,6 +27,7 @@ import { UpdateService } from '../services/update.service';
       gap: 16px;
       z-index: 1000;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);  /* Added top shadow */
+      background-color: rgba(255, 255, 255, 0.5);
     }
 
     button {
