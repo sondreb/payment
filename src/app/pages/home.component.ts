@@ -71,7 +71,8 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
     .display {
       background-color: white;
       padding: 1.5rem;
-      font-size: 2.5rem;
+      height: 4rem;          /* Added fixed height */
+      font-size: min(2.5rem, calc(400px / var(--length, 8)));
       text-align: right;
       border-radius: 16px;
       margin-bottom: 1.5rem;
@@ -79,6 +80,11 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
       font-weight: 600;
       color: #2c3e50;
       transition: all 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      display: flex;         /* Added flex display */
+      align-items: center;   /* Center vertically */
+      justify-content: flex-end; /* Align text to the right */
     }
 
     .display:hover {
@@ -246,6 +252,8 @@ export class HomeComponent {
 
   displayValue = computed(() => {
     const value = this.input() === '' ? 0 : parseFloat(this.input()) / 100;
+    const displayText = `${value.toFixed(2)} ${this.asset().code}`;
+    document.documentElement.style.setProperty('--length', displayText.length.toString());
     return value.toFixed(2);
   });
 
