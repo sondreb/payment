@@ -29,20 +29,19 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 }
               </div>
               <div class="payment-actions">
-                <qrcode [qrdata]="payment.paymentUrl" [width]="128" [errorCorrectionLevel]="'M'"></qrcode>
-                <button (click)="copyPaymentUrl(payment.paymentUrl)">Copy Payment URL</button>
-                <div class="payment-status">
-                <button class="check-status-btn" (click)="checkPaymentStatus(payment)">
-                      Check Status
-                    </button>
-                  @if (payment.isPaid) {
-                    <span class="status-icon success">✓</span>
-                  } @else {
+                @if (payment.isPaid) {
+                  <div class="payment-status">
+                    <span class="status-icon success large">✓</span>
+                  </div>
+                } @else {
+                  <qrcode [qrdata]="payment.paymentUrl" [width]="128" [errorCorrectionLevel]="'M'"></qrcode>
+                  <div class="payment-status">
                     <button class="check-status-btn" (click)="checkPaymentStatus(payment)">
                       Check Status
                     </button>
-                  }
-                </div>
+                  </div>
+                }
+                <button (click)="copyPaymentUrl(payment.paymentUrl)">Copy Payment URL</button>
               </div>
             </div>
           }
@@ -153,6 +152,11 @@ import { Clipboard } from '@angular/cdk/clipboard';
           text-decoration: underline;
         }
       }
+    }
+
+    .status-icon.success.large {
+      font-size: 4rem;
+      margin: 1rem 0;
     }
   `]
 })
