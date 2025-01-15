@@ -45,6 +45,10 @@ import { CommonModule } from '@angular/common';
     .logo {
       height: 36px;
       transition: transform 0.2s;
+
+      @media (max-width: 600px) {
+        display: none;
+      }
     }
 
     .logo:hover {
@@ -60,6 +64,10 @@ import { CommonModule } from '@angular/common';
       margin-left: 2rem;
       display: flex;
       gap: 0.5rem;
+
+      @media (max-width: 600px) {
+        margin-left: 0;
+      }
     }
 
     .links a {
