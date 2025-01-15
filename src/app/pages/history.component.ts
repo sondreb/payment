@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaymentHistoryService } from '../services/payment-history.service';
+import { PaymentHistoryService, PaymentRecord } from '../services/payment-history.service';
+import { PaymentValidatorService } from '../services/payment-validator.service';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { Clipboard } from '@angular/cdk/clipboard';
 
@@ -24,6 +25,15 @@ import { Clipboard } from '@angular/cdk/clipboard';
               <div class="payment-actions">
                 <qrcode [qrdata]="payment.paymentUrl" [width]="128" [errorCorrectionLevel]="'M'"></qrcode>
                 <button (click)="copyPaymentUrl(payment.paymentUrl)">Copy Payment URL</button>
+                <div class="payment-status">
+                  @if (payment.isPaid) {
+                    <span class="status-icon success">✓</span>
+                  } @else {
+                    <button class="check-status-btn" (click)="checkPaymentStatus(payment)">
+                      Check Status
+                    </button>
+                  }
+                </div>
               </div>
             </div>
           }
@@ -95,15 +105,57 @@ import { Clipboard } from '@angular/cdk/clipboard';
       padding: 2rem;
       color: #666;
     }
+
+    .payment-status {
+      display: flex;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .status-icon.success {
+      color: #2ecc71;
+      font-size: 1.5rem;
+    }
+
+    .check-status-btn {
+      padding: 0.5rem 1rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #2980b9;
+      }
+    }
   `]
 })
 export class HistoryComponent {
   private historyService = inject(PaymentHistoryService);
+  private paymentValidator = inject(PaymentValidatorService);
   private clipboard = inject(Clipboard);
   
   history$ = this.historyService.getHistory();
 
   copyPaymentUrl(url: string) {
     this.clipboard.copy(url);
+  }
+
+  checkPaymentStatus(payment: PaymentRecord) {
+    this.paymentValidator.startValidation({
+      memo: payment.memo,
+      expectedAmount: payment.amount,
+      assetCode: payment.assetCode,
+      destination: payment.destination
+    });
+
+    this.paymentValidator.validationStatus$.subscribe(status => {
+      if (status?.isPaid) {
+        this.historyService.updatePaymentStatus(payment.memo, true);
+      }
+    });
   }
 }
