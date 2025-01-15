@@ -60,29 +60,39 @@ import { Clipboard } from '@angular/cdk/clipboard';
       margin: 0 auto;
     }
 
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+    }
+
     .payment-card {
       background: white;
-      border-radius: 8px;
-      padding: 1rem;
+      border-radius: 16px;
+      padding: 1.5rem;
       margin-bottom: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: all 0.2s;
     }
 
-    .payment-info {
-      flex: 1;
+    .payment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px -1px rgba(0, 0, 0, 0.1);
     }
 
     .amount {
-      font-size: 1.5rem;
-      font-weight: 500;
-      color: #2B4E61;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
     }
 
     .timestamp {
-      color: #666;
+      color: #6b7280;
       font-size: 0.875rem;
       margin: 0.5rem 0;
     }
@@ -90,73 +100,46 @@ import { Clipboard } from '@angular/cdk/clipboard';
     .destination {
       font-family: monospace;
       word-break: break-all;
-    }
-
-    .payment-actions {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 2rem;
-      color: #666;
-    }
-
-    .payment-status {
-      display: flex;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-
-    .status-icon.success {
-      color: #2ecc71;
-      font-size: 1.5rem;
-    }
-
-    .check-status-btn {
-      padding: 0.5rem 1rem;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background-color 0.3s;
-
-      &:hover {
-        background-color: #2980b9;
-      }
+      background: #f8f9fa;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
     }
 
     .transaction-id {
       font-size: 0.875rem;
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
       
       a {
-        color: #3498db;
+        color: #4f46e5;
         text-decoration: none;
+        padding: 0.25rem 0.5rem;
+        background: #f3f4f6;
+        border-radius: 4px;
+        transition: all 0.2s;
         
         &:hover {
-          text-decoration: underline;
+          background: #e5e7eb;
+          text-decoration: none;
         }
       }
+    }
+
+    .status-icon.success {
+      color: #10b981;
+      font-size: 2rem;
     }
 
     .status-icon.success.large {
       font-size: 4rem;
       margin: 1rem 0;
+      animation: scaleIn 0.5s ease-in-out;
+    }
+
+    @keyframes scaleIn {
+      0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+      60% { transform: scale(1.2) rotate(10deg); }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
     }
   `]
 })

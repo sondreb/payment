@@ -27,11 +27,18 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
         </div>
       } @else {
         <div class="qr-container">
-          <qrcode
-            [qrdata]="qrCodeValue()"
-            [width]="256"
-            [errorCorrectionLevel]="'M'"
-          ></qrcode>
+          @if (paymentStatus() !== 'paid') {
+            <qrcode
+              [qrdata]="qrCodeValue()"
+              [width]="256"
+              [errorCorrectionLevel]="'M'"
+            ></qrcode>
+          } @else {
+            <div class="success-animation">
+              <span class="status-icon success">✓</span>
+            </div>
+          }
+          
           <div class="payment-status" [class]="paymentStatus()">
             @if (paymentStatus() === 'pending') {
               Waiting for payment...
@@ -47,7 +54,7 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
         </div>
       }
 
-      @if (true) {
+      @if (false) {
         <button class="debug-btn" (click)="simulatePaymentSuccess()">
           Debug: Simulate Payment Success
         </button>
@@ -58,38 +65,48 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
     .payment-container {
       padding: 2rem;
       max-width: 400px;
-      margin: 0 auto;
+      margin: 2rem auto;
     }
 
     .display {
       background-color: white;
-      padding: 1rem;
-      font-size: 2rem;
+      padding: 1.5rem;
+      font-size: 2.5rem;
       text-align: right;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      font-weight: 600;
+      color: #2c3e50;
+      transition: all 0.2s;
+    }
+
+    .display:hover {
+      box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1);
     }
 
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
 
     button {
       padding: 1.5rem;
       font-size: 1.5rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       background-color: white;
-      color: #2B4E61;
+      color: #2c3e50;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: all 0.2s;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     button:hover {
-      background-color: #f0f0f0;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     button:active {
@@ -97,9 +114,10 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
     }
 
     button.pay-button {
-      background-color: #007bff;
+      background-color: #4f46e5;
       color: white;
       grid-column: span 3;
+      font-weight: 600;
     }
 
     button.pay-button:disabled {
@@ -109,10 +127,15 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
 
     .qr-container {
       background: white;
-      padding: 1rem;
-      border-radius: 8px;
+      padding: 2rem;
+      border-radius: 16px;
       text-align: center;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+    }
+
+    .qr-container:hover {
+      box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1);
     }
 
     .qr-text {
@@ -144,20 +167,21 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
     }
 
     .payment-status {
-      margin: 1rem 0;
-      padding: 0.5rem;
-      border-radius: 4px;
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border-radius: 12px;
       font-weight: 500;
+      transition: all 0.3s;
     }
 
     .payment-status.pending {
-      background: #fff3cd;
-      color: #856404;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     .payment-status.paid {
-      background: #d4edda;
-      color: #155724;
+      background: #ecfdf5;
+      color: #065f46;
     }
 
     .debug-btn {
@@ -172,6 +196,33 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
 
     .debug-btn:hover {
       background-color: #f57c00;
+    }
+
+    .success-animation {
+      height: 256px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .status-icon.success {
+        font-size: 8rem;
+        color: #10b981;
+        animation: scaleIn 0.5s ease-in-out;
+      }
+    }
+
+    @keyframes scaleIn {
+      0% {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.2) rotate(10deg);
+      }
+      100% {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+      }
     }
   `
 })
@@ -289,19 +340,33 @@ export class HomeComponent {
   }
 
   simulatePaymentSuccess() {
+    const memo = `Debug_${Date.now()}`;
     const mockValidation = {
-      memo: 'debug-payment',
-      expectedAmount: '100',
-      assetCode: 'XLM',
-      destination: 'debug-destination',
+      memo,
+      expectedAmount: this.displayValue(),
+      assetCode: this.asset().code,
+      destination: this.stellarAddress(),
       isPaid: true,
       checkCount: 1,
       transactionId: 'debug-tx-' + Date.now()
     };
 
+    // Add a mock payment to history first
+    this.historyService.addPayment({
+      id: Date.now().toString(),
+      amount: this.displayValue(),
+      assetCode: this.asset().code,
+      destination: this.stellarAddress(),
+      timestamp: Date.now(),
+      paymentUrl: 'debug-url',
+      memo,
+      isPaid: false
+    });
+
+    // Then update its status to trigger the animation
     this.validatorService.stopValidation();
-    this.historyService.updatePaymentStatus(mockValidation.memo, true, mockValidation.transactionId);
-    this.showQrCode.set(false);
+    this.historyService.updatePaymentStatus(memo, true, mockValidation.transactionId);
+    this.showQrCode.set(true);
     this.paymentStatus.set('paid');
   }
 }

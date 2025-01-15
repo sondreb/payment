@@ -32,46 +32,76 @@ import { CommonModule } from '@angular/common';
     nav {
       display: flex;
       align-items: center;
-      padding: 1rem;
+      padding: 1rem 2rem;
       background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      background-color: rgba(255, 255, 255, 0.9);
     }
+
     .logo {
-      height: 40px;
+      height: 36px;
+      transition: transform 0.2s;
     }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
     .logo img {
       height: 100%;
+      border-radius: 8px;
     }
+
     .links {
       margin-left: 2rem;
+      display: flex;
+      gap: 0.5rem;
     }
+
     .links a {
-      color: #2B4E61;
+      color: #4b5563;
       text-decoration: none;
-      margin-right: 1rem;
       padding: 0.5rem 1rem;
-      border-radius: 4px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-weight: 500;
     }
+
+    .links a:hover {
+      background-color: #f3f4f6;
+      color: #4f46e5;
+    }
+
     .links a.active {
-      background-color: #E2F1F8;
+      background-color: #4f46e5;
+      color: white;
     }
+
     .flex-spacer {
       flex: 1;
     }
 
     .install-button {
-      padding: 8px 16px;
-      background-color: #007bff;
+      padding: 0.5rem 1rem;
+      background-color: #4f46e5;
       color: white;
       border: none;
-      border-radius: 20px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: all 0.2s;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .install-button:hover {
-      transform: scale(1.05);
-      background-color: #0056b3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
     }
   `,
 })

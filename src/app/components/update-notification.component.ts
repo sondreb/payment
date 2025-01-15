@@ -1,49 +1,68 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UpdateService } from '../services/update.service';
+import { PwaService } from '../services/pwa.service';
 
 @Component({
   selector: 'app-update-notification',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="updateService.updateAvailable$ | async" class="update-notification">
+    <div *ngIf="showUpdate" class="update-notification">
       <span>A new version is available!</span>
-      <button (click)="updateApp()">Update Now</button>
+      <button (click)="updateNow()">Update Now</button>
     </div>
   `,
-  styles: [`
+  styles: `
     .update-notification {
       position: fixed;
-      bottom: 0;          /* Changed from top: 0 to bottom: 0 */
-      left: 0;
-      right: 0;
-      background: var(--primary);
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #2c3e50;
       color: white;
-      padding: 16px;      /* Slightly increased padding */
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      gap: 16px;
+      gap: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       z-index: 1000;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);  /* Added top shadow */
+      animation: slideUp 0.3s ease-out;
+      font-weight: 500;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+      }
+      to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
     }
 
     button {
-      background: white;
-      color: var(--primary);
+      padding: 0.5rem 1rem;
+      background-color: #4f46e5;
+      color: white;
       border: none;
-      padding: 8px 16px;  /* Slightly increased padding */
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: 500;
-      transition: background-color 0.2s;  /* Added transition */
+      transition: all 0.2s;
     }
 
     button:hover {
-      background: var(--background);
+      background-color: #4338ca;
+      transform: translateY(-1px);
     }
-  `]
+
+    button:active {
+      transform: translateY(0);
+    }
+  `
 })
 export class UpdateNotificationComponent {
   constructor(public updateService: UpdateService) {}
