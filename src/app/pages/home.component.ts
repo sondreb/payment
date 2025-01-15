@@ -114,7 +114,7 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
     }
 
     button.pay-button {
-      background-color: #4f46e5;
+      background-color: #2B4E61;
       color: white;
       grid-column: span 3;
       font-weight: 600;
@@ -162,7 +162,7 @@ import { PaymentValidatorService } from '../services/payment-validator.service';
     }
 
     .qr-actions button:last-child {
-      background-color: #007bff;
+      background-color: #2B4E61;
       color: white;
     }
 

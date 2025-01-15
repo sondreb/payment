@@ -16,7 +16,7 @@ body {
 button {
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
-  background-color: #4f46e5;
+  background-color: #2B4E61;
   color: white;
   border: none;
   border-radius: 8px;
@@ -28,7 +28,7 @@ button {
 
 button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 4px 12px rgba(43, 78, 97, 0.15);
 }
 
 button:active {

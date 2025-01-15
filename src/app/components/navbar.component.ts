@@ -73,11 +73,11 @@ import { CommonModule } from '@angular/common';
 
     .links a:hover {
       background-color: #f3f4f6;
-      color: #4f46e5;
+      color: #2B4E61;
     }
 
     .links a.active {
-      background-color: #4f46e5;
+      background-color: #2B4E61;
       color: white;
     }
 
@@ -87,7 +87,7 @@ import { CommonModule } from '@angular/common';
 
     .install-button {
       padding: 0.5rem 1rem;
-      background-color: #4f46e5;
+      background-color: #2B4E61;
       color: white;
       border: none;
       border-radius: 8px;
@@ -101,7 +101,7 @@ import { CommonModule } from '@angular/common';
 
     .install-button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+      box-shadow: 0 4px 12px rgba(43, 78, 97, 0.15);
     }
   `,
 })
