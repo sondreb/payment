@@ -8,6 +8,7 @@ export interface PaymentValidation {
   destination: string;
   isPaid: boolean;
   checkCount: number;
+  transactionId?: string;
 }
 
 @Injectable({
@@ -138,6 +139,7 @@ export class PaymentValidatorService {
       if (matchingPayment) {
         console.log('Found matching payment:', matchingPayment);
         validation.isPaid = true;
+        validation.transactionId = matchingPayment.transaction_hash;
         this.validationStatus.next(validation);
         this.stopValidation();
         return;

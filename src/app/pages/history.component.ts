@@ -21,11 +21,20 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 <div class="amount">{{ payment.amount }} {{ payment.assetCode }}</div>
                 <div class="timestamp">{{ payment.timestamp | date:'medium' }}</div>
                 <div class="destination">To: {{ payment.destination }}</div>
+                @if (payment.transactionId) {
+                  <div class="transaction-id">
+                    Transaction: <a href="https://stellar.expert/explorer/public/tx/{{payment.transactionId}}" 
+                    target="_blank">{{payment.transactionId}}</a>
+                  </div>
+                }
               </div>
               <div class="payment-actions">
                 <qrcode [qrdata]="payment.paymentUrl" [width]="128" [errorCorrectionLevel]="'M'"></qrcode>
                 <button (click)="copyPaymentUrl(payment.paymentUrl)">Copy Payment URL</button>
                 <div class="payment-status">
+                <button class="check-status-btn" (click)="checkPaymentStatus(payment)">
+                      Check Status
+                    </button>
                   @if (payment.isPaid) {
                     <span class="status-icon success">✓</span>
                   } @else {
@@ -131,6 +140,20 @@ import { Clipboard } from '@angular/cdk/clipboard';
         background-color: #2980b9;
       }
     }
+
+    .transaction-id {
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      
+      a {
+        color: #3498db;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
   `]
 })
 export class HistoryComponent {
@@ -154,7 +177,7 @@ export class HistoryComponent {
 
     this.paymentValidator.validationStatus$.subscribe(status => {
       if (status?.isPaid) {
-        this.historyService.updatePaymentStatus(payment.memo, true);
+        this.historyService.updatePaymentStatus(payment.memo, true, status.transactionId);
       }
     });
   }

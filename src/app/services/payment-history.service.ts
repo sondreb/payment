@@ -10,6 +10,7 @@ export interface PaymentRecord {
   paymentUrl: string;
   isPaid?: boolean;
   memo: string;
+  transactionId?: string;
 }
 
 @Injectable({
@@ -37,10 +38,10 @@ export class PaymentHistoryService {
     this.historySubject.next([]);
   }
 
-  updatePaymentStatus(memo: string, isPaid: boolean) {
+  updatePaymentStatus(memo: string, isPaid: boolean, transactionId?: string) {
     const current = this.historySubject.value;
     const updated = current.map(payment => 
-      payment.memo === memo ? { ...payment, isPaid } : payment
+      payment.memo === memo ? { ...payment, isPaid, transactionId } : payment
     );
     localStorage.setItem(this.HISTORY_KEY, JSON.stringify(updated));
     this.historySubject.next(updated);
